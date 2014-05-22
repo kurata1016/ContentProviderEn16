@@ -6,31 +6,32 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	TableLayout tablelayout = null;
+	ListView listview = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		tablelayout = (TableLayout) findViewById(R.id.tl_tablelayout);
-
 		try {
 			Cursor cur = getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null,
 					null);
 
 			if (cur.getCount() != 0) {
+				int i = 0;
+				String[] number = new String[cur.getCount()];
 				while (cur.moveToNext()) {
-					String name = cur.getString(cur.getColumnIndex(CallLog.Calls.NUMBER));
-					setItems(name);
+					number[i] = cur.getString(cur.getColumnIndex(CallLog.Calls.NUMBER));
+					i++;
 				}
+				setItems(number);
 			} else {
 				TextView message = new TextView(this);
 				message.setText("データが取得できませんでした。");
@@ -42,15 +43,12 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private void setItems(String name) {
-		TableRow row = new TableRow(this);
+	private void setItems(String[] number) {
+		listview = new ListView(this);
+		setContentView(listview);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.activity_list, number);
 
-		TextView displayName = new TextView(this);
-		displayName.setText(name);
-
-		row.addView(displayName);
-
-		tablelayout.addView(row);
+		listview.setAdapter(adapter);
 	}
 
 	@Override
